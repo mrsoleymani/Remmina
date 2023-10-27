@@ -1,8 +1,11 @@
 #!/bin/bash
+cd /home/mrs/.local/share/remmina/
+ls
+sudo rm *.remmina
 
 # Remote server details
 host="192.168.2.34"
-port="22"
+port="2290"
 username="mrs"
 password="mr$%0921202571"
 
