@@ -7,7 +7,6 @@ sudo rm *.remmina
 host="192.168.2.34"
 port="2290"
 username="mrs"
-password="mr$%0921202571"
 
 # Local and remote directories
 #local_dir="/path/to/local/directory"
