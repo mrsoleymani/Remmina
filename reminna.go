@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -15,7 +16,7 @@ func main() {
 	password := "your_password" // Replace with your actual password
 
 	// Local and remote directories
-	localDir := "/path/to/local/directory"
+	// localDir := "/path/to/local/directory"
 	remoteDir := ".local/share/remmina/"
 
 	// Create SSH client configuration
@@ -43,45 +44,25 @@ func main() {
 	}
 	defer sftpClient.Close()
 
-	// Change to the remote directory
-	err = sftpClient.Chdir(remoteDir)
+	// Use sftp.Walk to list files in the remote directory
+	err = sftp.wa(sftpClient, remoteDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println("Error:", err)
+			return nil
+		}
+
+		// Print or process the file information
+		fmt.Println("File:", path, "Size:", info.Size())
+
+		// Continue with additional processing if needed
+
+		return nil
+	})
+
 	if err != nil {
-		fmt.Println("Failed to change directory:", err)
+		fmt.Println("Failed to walk remote directory:", err)
 		return
 	}
 
-	// List remote files
-	files, err := sftpClient.ReadDir(".")
-	if err != nil {
-		fmt.Println("Failed to list files:", err)
-		return
-	}
-
-	for _, file := range files {
-		// Download each file
-		remoteFilePath := file.Name()
-		localFilePath := localDir + "/" + remoteFilePath
-
-		srcFile, err := sftpClient.Open(remoteFilePath)
-		if err != nil {
-			fmt.Println("Failed to open remote file:", err)
-			return
-		}
-		defer srcFile.Close()
-
-		dstFile, err := os.Create(localFilePath)
-		if err != nil {
-			fmt.Println("Failed to create local file:", err)
-			return
-		}
-		defer dstFile.Close()
-
-		_, err = srcFile.WriteTo(dstFile)
-		if err != nil {
-			fmt.Println("Failed to download file:", err)
-			return
-		}
-		fmt.Println("Downloaded:", remoteFilePath)
-	}
-	fmt.Println("SFTP download completed.")
+	fmt.Println("SFTP directory listing completed.")
 }
